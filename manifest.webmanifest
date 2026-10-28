@@ -1,0 +1,12 @@
+{
+  "name": "お買い物リスト",
+  "short_name": "買い物リスト",
+  "description": "自分専用・オフラインお買い物リスト",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f5f3",
+  "theme_color": "#315d57",
+  "lang": "ja",
+  "icons": [{ "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

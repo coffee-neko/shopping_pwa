@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#315d57">
+  <meta name="description" content="自分専用・オフラインお買い物リスト">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <title>お買い物リスト</title>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="title-row">
+        <h1>お買い物リスト</h1>
+        <button id="open-settings" class="icon-button" type="button" aria-label="設定を開く">⚙<span>設定</span></button>
+      </div>
+      <label class="store-picker">店舗
+        <select id="store-select" aria-label="店舗を選ぶ"></select>
+      </label>
+      <nav class="tabs" aria-label="画面切り替え">
+        <button class="tab-button is-active" type="button" data-view="routine">定番を選ぶ</button>
+        <button class="tab-button" type="button" data-view="shopping">買い物する</button>
+      </nav>
+    </header>
+
+    <section id="routine-view" class="view" aria-labelledby="routine-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="routine-title">定番商品</h2>
+          <p>タップで今回の買い物リストに追加・解除</p>
+        </div>
+        <span id="routine-count" class="count-badge"></span>
+      </div>
+      <div id="routine-list" class="routine-list"></div>
+      <p id="routine-empty" class="empty-message" hidden>定番商品がありません。設定から追加できます。</p>
+    </section>
+
+    <section id="shopping-view" class="view" hidden aria-labelledby="shopping-title">
+      <div class="budget-panel" aria-live="polite">
+        <span>残り予算</span>
+        <strong id="remaining-budget">¥0</strong>
+        <small id="budget-detail">使用 ¥0 / 予算 ¥0</small>
+      </div>
+      <div class="shopping-heading">
+        <div>
+          <h2 id="shopping-title">今回の買い物</h2>
+          <p>金額を入れてから購入済みにチェック</p>
+        </div>
+        <button id="reset-shopping" class="danger-outline" type="button">この店舗をリセット</button>
+      </div>
+      <form id="quick-add-form" class="quick-add">
+        <label>その場で追加
+          <input id="quick-name" maxlength="60" required placeholder="商品名" autocomplete="off">
+        </label>
+        <label>分類
+          <select id="quick-category"></select>
+        </label>
+        <button type="submit">追加</button>
+      </form>
+      <div id="shopping-grid" class="shopping-grid"></div>
+      <p id="shopping-empty" class="empty-message" hidden>商品がありません。「定番を選ぶ」または上の追加欄から追加してください。</p>
+      <section id="handover-section" class="handover" hidden aria-labelledby="handover-title">
+        <h2 id="handover-title">引き継ぎメモ</h2>
+        <p>未購入の商品を家族などに頼むための文章です。</p>
+        <div class="toggle-row">
+          <button id="add-milk" class="toggle-button" type="button" aria-pressed="false">牛乳を追加</button>
+          <button id="add-template" class="toggle-button" type="button" aria-pressed="false">定型メッセージを追加</button>
+        </div>
+        <textarea id="handover-text" readonly rows="5" aria-label="引き継ぎメモ本文"></textarea>
+        <button id="copy-handover" class="primary-action" type="button">メモをコピー</button>
+        <p id="copy-status" class="status-message" aria-live="polite"></p>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="settings-dialog" class="settings-dialog">
+    <form method="dialog" class="dialog-header"><h2>設定</h2><button aria-label="閉じる">×</button></form>
+    <div class="settings-content">
+      <section>
+        <h3>予算（<span id="settings-store-name"></span>）</h3>
+        <label class="inline-input">買い物予算
+          <input id="budget-input" type="number" min="0" step="1" inputmode="numeric" aria-label="買い物予算">
+          <span>円</span>
+        </label>
+      </section>
+      <section>
+        <h3>定番商品</h3>
+        <form id="routine-form" class="edit-form">
+          <input id="routine-id" type="hidden">
+          <input id="routine-name" maxlength="60" required placeholder="商品名" aria-label="定番商品名">
+          <select id="routine-category" aria-label="分類"></select>
+          <button type="submit">保存</button>
+          <button id="routine-cancel" type="button" hidden>取消</button>
+        </form>
+        <div id="settings-routine-list" class="settings-list"></div>
+      </section>
+      <section>
+        <h3>分類と売り場順</h3>
+        <p class="help-text">この店舗の買い物画面は、上から下の順に分類して表示します。</p>
+        <form id="category-form" class="edit-form narrow-form">
+          <input id="new-category" maxlength="30" required placeholder="分類を追加" aria-label="新しい分類">
+          <button type="submit">追加</button>
+        </form>
+        <div id="category-order-list" class="settings-list"></div>
+      </section>
+      <section id="template-settings" hidden>
+        <h3>ウエルシアの定型メッセージ</h3>
+        <p class="help-text">引き継ぎメモに追加する文章です。未設定でも使えます。</p>
+        <textarea id="template-input" rows="3" maxlength="500" placeholder="例：よろしくお願いします。"></textarea>
+        <button id="save-template" type="button">定型文を保存</button>
+      </section>
+      <section>
+        <h3>バックアップ</h3>
+        <div class="backup-actions">
+          <button id="export-backup" type="button">JSONを書き出す</button>
+          <label class="file-button">JSONを復元<input id="import-backup" type="file" accept="application/json,.json"></label>
+        </div>
+        <p id="backup-status" class="status-message" aria-live="polite"></p>
+      </section>
+    </div>
+  </dialog>
+  <script src="./app.js" defer></script>
+</body>
+</html>
